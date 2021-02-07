@@ -25,7 +25,8 @@ public class Main extends Application {
 
         stage.setScene(scene);
         stage.show();
-        stage.setTitle("Library Assistant Login");
+        stage.setTitle("صفحه ورود");
+//        stage.setAlwaysOnTop(true);
 
         LibraryAssistantUtil.setStageIcon(stage);
 
