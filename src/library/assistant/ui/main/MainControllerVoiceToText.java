@@ -10,6 +10,7 @@ import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
+import javafx.scene.Group;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.Label;
@@ -23,21 +24,31 @@ import javafx.stage.Stage;
 import javafx.stage.StageStyle;
 import library.assistant.ui.strip.StripController;
 import library.assistant.util.LibraryAssistantUtil;
+import library.assistant.utils.UtilAccessToken;
+import sun.plugin2.message.JavaScriptBaseMessage;
 
+import java.awt.*;
 import java.io.File;
 import java.io.FileInputStream;
 import java.net.URL;
 import java.util.ResourceBundle;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 public class MainControllerVoiceToText implements Initializable {
 
+    public Group decibelSoundMeterGroup;
+    public AnchorPane decibelSoundMeterParent;
+    public AnchorPane decibelSoundMeterShow;
+    LevelMeter meter;
+    Thread recordThread;
     //new recorder fields
     private static final long serialVersionUID = 1L;
     byte[] audioBytes = null;
     float[] audioData = null;
     final int BUFFER_SIZE = 16384;
     final FormatControlConf formatControlConf = new FormatControlConf();
-    final Recorder recorder = new Recorder(this);
+//    final Recorder recorder = new Recorder(meter);
 
     //last recorder fields
     File audioFile;
@@ -84,6 +95,9 @@ public class MainControllerVoiceToText implements Initializable {
         isRecordPressed = true;
         stopwatch = new Stopwatch(lblTimer);
         stopwatch.starter();
+        meter = new LevelMeter();
+        meter.setPreferredSize(new Dimension(9, 100));
+        decibelSoundMeterShow.setPrefWidth(50);
 
         try {
             Font fontIRANSans = Font.loadFont(new FileInputStream(new File("src\\resources\\IRANSans.TTF")), 20);
@@ -115,14 +129,18 @@ public class MainControllerVoiceToText implements Initializable {
 
     @FXML
     void startRecording(ActionEvent event) {
+        decibelSoundMeterShow.setPrefWidth(80);
         if (isRecordPressed){
             btnRecord.setText("پایان ظبط");
             System.out.println("شروع ظبط");
 
             stopwatch.play();
-            soundRecorder = new SoundRecorder();
-            Thread thread = new Thread(soundRecorder);
-            thread.start();
+
+            recordThread = new Thread(new Recorder(meter));
+            recordThread.start();
+//            soundRecorder = new SoundRecorder();
+//            Thread thread = new Thread(soundRecorder);
+//            thread.start();
 
             isRecordPressed = false;
         } else {
@@ -130,8 +148,21 @@ public class MainControllerVoiceToText implements Initializable {
             System.out.println("پایان ظبط");
 
             stopwatch.reset(lblTimer);
-            soundRecorder.finish();
-            soundRecorder.cancel();
+
+            JsonPostVoiceFile jsonPostVoiceFile = new JsonPostVoiceFile(UtilAccessToken.accessToken, audioFile, lblVoiceText);
+            jsonPostVoiceFile.setOnSucceeded((succeededEvent) ->{
+                if (jsonPostVoiceFile.responseCode == 200){
+                    if (jsonPostVoiceFile.resultStatus == 200){
+                        lblVoiceText.setText(jsonPostVoiceFile.text);
+                    }
+                }
+            });
+            ExecutorService executorService = Executors.newFixedThreadPool(1);
+            executorService.execute(jsonPostVoiceFile);
+            executorService.shutdown();
+            recordThread.interrupt();
+//            soundRecorder.finish();
+//            soundRecorder.cancel();
 
             isRecordPressed = true;
         }

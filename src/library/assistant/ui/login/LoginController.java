@@ -90,7 +90,7 @@ public class LoginController implements Initializable {
 
                     try {
                         File file = new File("record.wav");
-                        JsonPostVoiceFile jsonPostVoiceFile = new JsonPostVoiceFile(UtilAccessToken.accessToken, file);
+//                        JsonPostVoiceFile jsonPostVoiceFile = new JsonPostVoiceFile(UtilAccessToken.accessToken, file);
 //                        jsonPostVoiceFile.setOnSucceeded((succeededEvent) -> {
 //                            if (jsonPostVoiceFile.responseCode == 200){
 //                                System.out.println("The file sent successfully!");
@@ -101,9 +101,9 @@ public class LoginController implements Initializable {
 //                        jsonPostVoiceFile.setOnFailed((failedEvent) -> {
 //                            System.out.println("OnFailed!");
 //                        });
-                        ExecutorService executorService = Executors.newFixedThreadPool(1);
-                        executorService.execute(jsonPostVoiceFile);
-                        executorService.shutdown();
+//                        ExecutorService executorService = Executors.newFixedThreadPool(1);
+//                        executorService.execute(jsonPostVoiceFile);
+//                        executorService.shutdown();
                     } catch (Exception e){
                         e.printStackTrace();
                     }

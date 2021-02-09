@@ -1,5 +1,6 @@
 package library.assistant.ui.main;
 
+import com.jfoenix.controls.JFXTextArea;
 import javafx.concurrent.Task;
 import library.assistant.utils.UtilAccessToken;
 import netscape.javascript.JSException;
@@ -17,10 +18,19 @@ public class JsonPostVoiceFile extends Task {
     String accessToken = "";
     File wavFile;
     int responseCode = 0;
+    int resultStatus = 0;
+    String text = "";
+    JFXTextArea textArea;
 
     public JsonPostVoiceFile(String accessToken, File wavFile) {
         this.accessToken = accessToken;
         this.wavFile = wavFile;
+    }
+
+    public JsonPostVoiceFile(String accessToken, File wavFile, JFXTextArea textArea) {
+        this.accessToken = accessToken;
+        this.wavFile = wavFile;
+        this.textArea = textArea;
     }
 
     public static void main(String[] args) {
@@ -73,8 +83,15 @@ public class JsonPostVoiceFile extends Task {
             RequestBody body = new MultipartBody.Builder().setType(MultipartBody.FORM).addFormDataPart("file", "D:\\IntelliJ\\Mr.Rasekh_JavaFX\\Library-Assistant\\AUD-20201026-WA0006.wav", RequestBody.create(MediaType.parse("application/octet-stream"), new File("D:\\IntelliJ\\Mr.Rasekh_JavaFX\\Library-Assistant\\AudioFiles\\AUD-20201026-WA0006.wav"))).build();
             Request request = new Request.Builder().url("http://deepmine.ir:8890/api/speech2text/").method("POST", body).addHeader("Authorization", "Token "+accessToken).addHeader("X-CSRFToken", "dTESXmXRrcnvU5pM8QXOum3XXAgh2soUPZLpGyKk2we6p8M8C4gIhP0hThm3JraF").addHeader("Cookie", "csrftoken=dTESXmXRrcnvU5pM8QXOum3XXAgh2soUPZLpGyKk2we6p8M8C4gIhP0hThm3JraF").build();
             Response response = client.newCall(request).execute();
+            responseCode = response.code();
             String result = response.body().string();
             System.out.println("speech2text: "+result);
+            JSONObject jsonObject = new JSONObject(result);
+            resultStatus = jsonObject.getInt("status");
+            if (resultStatus == 200){
+                text = jsonObject.getString("data");
+                System.out.println("text of speech: "+text);
+            }
         } catch (Exception e){
             e.printStackTrace();
             System.out.println(e.getMessage());
