@@ -1,5 +1,7 @@
 package library.assistant.ui.main;
 
+import javafx.scene.layout.AnchorPane;
+
 import javax.sound.sampled.*;
 import javax.swing.*;
 import java.io.File;
@@ -8,12 +10,13 @@ import java.util.Objects;
 public class NewRecorder implements Runnable {
 
     LevelMeter meter;
+    AnchorPane anchorPaneShow;
 
     static final long RECORD_TIME = 60000;
 
-    int filesCount = Objects.requireNonNull(new File("D:\\IntelliJ\\Mr.Rasekh_JavaFX\\Library-Assistant\\AudioFiles").listFiles()).length;
+    int filesCount;
 
-    File wavFile = new File("D:\\IntelliJ\\Mr.Rasekh_JavaFX\\Library-Assistant\\AudioFiles\\RecordFile"+filesCount+".wav");
+    File wavFile;
 
     AudioFileFormat.Type fileType = AudioFileFormat.Type.WAVE;
 
@@ -23,9 +26,16 @@ public class NewRecorder implements Runnable {
         this.meter = meter;
     }
 
+    public NewRecorder(LevelMeter meter, AnchorPane anchorPaneShow) {
+        this.meter = meter;
+        this.anchorPaneShow = anchorPaneShow;
+    }
+
     @Override
     public void run() {
         try {
+            filesCount = new File("./AudioFiles").listFiles().length;
+            wavFile = new File("./AudioFiles/RecordFile"+filesCount+".wav");
             AudioFormat format = getAudioFormat();
             final int bufferByteSize = 2048;
             DataLine.Info info = new DataLine.Info(TargetDataLine.class, format);
@@ -110,12 +120,13 @@ public class NewRecorder implements Runnable {
     }
 
     void setMeterOnEDT(final float rms, final float peak) {
-        SwingUtilities.invokeLater(new Runnable() {
-            @Override
-            public void run() {
-                meter.setAmplitude(rms);
-                meter.setPeak(peak);
-            }
-        });
+        anchorPaneShow.setPrefWidth(rms);
+//        SwingUtilities.invokeLater(new Runnable() {
+//            @Override
+//            public void run() {
+//                meter.setAmplitude(rms);
+//                meter.setPeak(peak);
+//            }
+//        });
     }
 }

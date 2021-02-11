@@ -31,6 +31,7 @@ import java.awt.*;
 import java.io.File;
 import java.io.FileInputStream;
 import java.net.URL;
+import java.util.Objects;
 import java.util.ResourceBundle;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -54,9 +55,12 @@ public class MainControllerVoiceToText implements Initializable {
     File audioFile;
     boolean isRecordPressed = true;
     SoundRecorder soundRecorder;
+    MainRecorder mainRecorder;
     Stopwatch stopwatch;
     boolean isStripOpen = true;
     StripController stripController = new StripController();
+    int filesCount;
+    String textFieldText = "";
 
     @FXML
     private JFXButton btnRecord;
@@ -91,23 +95,28 @@ public class MainControllerVoiceToText implements Initializable {
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
-        btnRecord.setShape(new Circle(100));
-        isRecordPressed = true;
-        stopwatch = new Stopwatch(lblTimer);
-        stopwatch.starter();
-        meter = new LevelMeter();
-        meter.setPreferredSize(new Dimension(9, 100));
-        decibelSoundMeterShow.setPrefWidth(50);
-
         try {
-            Font fontIRANSans = Font.loadFont(new FileInputStream(new File("src\\resources\\IRANSans.TTF")), 20);
-            lblVoiceText.setFont(fontIRANSans);
-            lblTimer.setFont(fontIRANSans);
-            btnRecord.setFont(fontIRANSans);
-            btnFileChooser.setFont(fontIRANSans);
+            btnRecord.setShape(new Circle(100));
+            isRecordPressed = true;
+            stopwatch = new Stopwatch(lblTimer);
+            stopwatch.starter();
+            meter = new LevelMeter();
+            meter.setPreferredSize(new Dimension(9, 100));
+
+            try {
+                Font fontIRANSans = Font.loadFont(new FileInputStream(new File("src\\resources\\IRANSans.TTF")), 20);
+                lblVoiceText.setFont(fontIRANSans);
+                lblTimer.setFont(fontIRANSans);
+                btnRecord.setFont(fontIRANSans);
+                btnFileChooser.setFont(fontIRANSans);
+            } catch (Exception e){
+                e.printStackTrace();
+            }
         } catch (Exception e){
             e.printStackTrace();
+            System.out.println(e.getMessage());
         }
+
 //        mainTabPane.focusedProperty().addListener(new ChangeListener<Boolean>() {
 //            @Override
 //            public void changed(ObservableValue<? extends Boolean> observable, Boolean oldValue, Boolean newValue) {
@@ -124,47 +133,74 @@ public class MainControllerVoiceToText implements Initializable {
 
     @FXML
     void loadFileChooser(ActionEvent event) {
-        audioFile = selectFile(getStage());
-    }
-
-    @FXML
-    void startRecording(ActionEvent event) {
-        decibelSoundMeterShow.setPrefWidth(80);
-        if (isRecordPressed){
-            btnRecord.setText("پایان ظبط");
-            System.out.println("شروع ظبط");
-
-            stopwatch.play();
-
-            recordThread = new Thread(new Recorder(meter));
-            recordThread.start();
-//            soundRecorder = new SoundRecorder();
-//            Thread thread = new Thread(soundRecorder);
-//            thread.start();
-
-            isRecordPressed = false;
-        } else {
-            btnRecord.setText("شروع ظبط");
-            System.out.println("پایان ظبط");
-
-            stopwatch.reset(lblTimer);
-
+        try {
+            audioFile = selectFile(getStage());
             JsonPostVoiceFile jsonPostVoiceFile = new JsonPostVoiceFile(UtilAccessToken.accessToken, audioFile, lblVoiceText);
             jsonPostVoiceFile.setOnSucceeded((succeededEvent) ->{
                 if (jsonPostVoiceFile.responseCode == 200){
                     if (jsonPostVoiceFile.resultStatus == 200){
-                        lblVoiceText.setText(jsonPostVoiceFile.text);
+                        textFieldText = textFieldText.concat(" ").concat(jsonPostVoiceFile.text);
+                        lblVoiceText.setText(textFieldText);
                     }
                 }
             });
             ExecutorService executorService = Executors.newFixedThreadPool(1);
             executorService.execute(jsonPostVoiceFile);
             executorService.shutdown();
-            recordThread.interrupt();
-//            soundRecorder.finish();
-//            soundRecorder.cancel();
+        } catch (Exception e){
+            e.printStackTrace();
+            System.out.println(e.getMessage());
+        }
+    }
 
-            isRecordPressed = true;
+    @FXML
+    void startRecording(ActionEvent event) {
+        try {
+            decibelSoundMeterShow.setPrefWidth(80);
+            try {
+                filesCount = new File("./AudioFiles").listFiles().length;
+            } catch (Exception e){
+                e.printStackTrace();
+            }
+            System.out.println(filesCount);
+            int fileNumber = filesCount - 1;
+            if (isRecordPressed){
+                btnRecord.setText("پایان ظبط");
+                System.out.println("شروع ظبط");
+
+                stopwatch.play();
+
+
+                mainRecorder = new MainRecorder();
+                Thread thread = new Thread(mainRecorder);
+                thread.start();
+
+                isRecordPressed = false;
+            } else {
+                btnRecord.setText("شروع ظبط");
+                System.out.println("پایان ظبط");
+                mainRecorder.finish();
+                mainRecorder.cancel();
+                audioFile = new File("./AudioFiles/RecordAudio"+fileNumber+".wav");
+                stopwatch.reset(lblTimer);
+
+                JsonPostVoiceFile jsonPostVoiceFile = new JsonPostVoiceFile(UtilAccessToken.accessToken, audioFile, lblVoiceText);
+                jsonPostVoiceFile.setOnSucceeded((succeededEvent) ->{
+                    if (jsonPostVoiceFile.responseCode == 200){
+                        if (jsonPostVoiceFile.resultStatus == 200){
+                            textFieldText = textFieldText.concat(" ").concat(jsonPostVoiceFile.text);
+                            lblVoiceText.setText(textFieldText);
+                        }
+                    }
+                });
+                ExecutorService executorService = Executors.newFixedThreadPool(1);
+                executorService.execute(jsonPostVoiceFile);
+                executorService.shutdown();
+                isRecordPressed = true;
+            }
+        } catch (Exception e){
+            e.printStackTrace();
+            System.out.println(e.getMessage());
         }
     }
 

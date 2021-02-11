@@ -9,9 +9,9 @@
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
 
-<AnchorPane id="AnchorPane" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" minHeight="400.0" minWidth="600.0" prefHeight="400.0" prefWidth="600.0" stylesheets="@../../../../resources/dark-theme.css" xmlns="http://javafx.com/javafx/8.0.171" xmlns:fx="http://javafx.com/fxml/1" fx:controller="library.assistant.ui.login.LoginController">
+<AnchorPane id="AnchorPane" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" minHeight="450.0" minWidth="600.0" prefHeight="450.0" prefWidth="600.0" stylesheets="@../../../../resources/dark-theme.css" xmlns="http://javafx.com/javafx/8.0.171" xmlns:fx="http://javafx.com/fxml/1" fx:controller="library.assistant.ui.login.LoginController">
    <children>
-      <VBox alignment="CENTER" prefHeight="200.0" prefWidth="100.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+      <VBox alignment="CENTER" prefHeight="250.0" prefWidth="100.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
          <children>
             <AnchorPane maxHeight="400.0" maxWidth="600.0" minHeight="400.0" minWidth="600.0" prefHeight="400.0" prefWidth="600.0">
                <children>
@@ -38,11 +38,8 @@
                   <FontAwesomeIconView glyphName="USER" layoutX="442.0" layoutY="154.0" size="35" text="" />
                   <FontAwesomeIconView glyphName="LOCK" layoutX="269.0" layoutY="98.0" size="70" />
                   <FontAwesomeIconView glyphName="KEY" layoutX="438.0" layoutY="229.0" size="35" text="" />
-                  <Label fx:id="lblGoToSignUp" alignment="CENTER" layoutX="139.0" layoutY="326.0" onMouseClicked="#goToSignUp" prefHeight="35.0" prefWidth="331.0" text="حساب کاربری ندارید؟ ثبت نام" textAlignment="CENTER" textFill="#b2b2b2">
-<!--                     <font>-->
-<!--                        <Font name="Arial" size="20.0" />-->
-<!--                     </font>-->
-                  </Label>
+                  <Label fx:id="lblGoToSignUp" alignment="CENTER" layoutX="139.0" layoutY="326.0" onMouseClicked="#goToSignUp" prefHeight="35.0" prefWidth="331.0" text="حساب کاربری ندارید؟ ثبت نام" textAlignment="CENTER" textFill="#b2b2b2" />
+                  <Label fx:id="lblErrorSignUp" alignment="CENTER" layoutX="206.0" layoutY="365.0" text="" textAlignment="CENTER" textFill="#ca2726"/>
                </children>
             </AnchorPane>
          </children>

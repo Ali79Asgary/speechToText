@@ -37,18 +37,8 @@ public class JsonPostLogin extends Task<Integer> {
                 System.out.println(e.getMessage());
             }
             System.out.println(jsonObject);
-//            OkHttpClient client = new OkHttpClient().newBuilder().build();
-//            MediaType mediaType = MediaType.parse("application/json");
-//            RequestBody body = RequestBody.create(mediaType, String.valueOf(jsonObject));
-//            Request request = new Request.Builder().url("http://deepmine.ir:8890/api/forgot_get_phone/").method("POST", body).addHeader("Content-Type", "application/json").build();
-//            Response response = client.newCall(request).execute();
-//            System.out.println(response.toString());
-
-
             OkHttpClient client = new OkHttpClient().newBuilder().build();
-
             CookieStore cookieStore;
-
             MediaType mediaType = MediaType.parse("application/json");
             RequestBody body = RequestBody.create(mediaType, String.valueOf(jsonObject));
             Request request = new Request.Builder()

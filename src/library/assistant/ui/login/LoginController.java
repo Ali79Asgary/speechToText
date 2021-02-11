@@ -53,6 +53,8 @@ public class LoginController implements Initializable {
     private JFXPasswordField password;
     @FXML
     private Label lblGoToSignUp;
+    @FXML
+    private Label lblErrorSignUp;
 
     Preferences preference;
 
@@ -78,18 +80,39 @@ public class LoginController implements Initializable {
             String uname = StringUtils.trimToEmpty(username.getText());
             String pword = StringUtils.trimToEmpty(password.getText());
 
-            JsonPostLogin jsonPostLogin = new JsonPostLogin(uname, pword);
-            jsonPostLogin.setOnSucceeded((succeededEvent) ->{
-                if (jsonPostLogin.responseCode == 200){
-                    System.out.println("On Succeeded");
-                    closeStage();
-                    loadStrip(isStripOpen);
-//                    loadMain();
-                    LOGGER.log(Level.INFO, "User successfully logged in {}", uname);
+            if (username.getText().equals("") || password.getText().equals("")){
+                lblErrorSignUp.setText("لطفا تمام فیلدها را تکمیل نمایید!");
+            } else {
+                try {
+                    JsonPostLogin jsonPostLogin = new JsonPostLogin(uname, pword);
+                    jsonPostLogin.setOnSucceeded((succeededEvent) ->{
+                        if (jsonPostLogin.responseCode == 200){
+                            System.out.println("On Succeeded");
+                            closeStage();
+                            loadStrip(isStripOpen);
+                            loadMain();
+                            LOGGER.log(Level.INFO, "User successfully logged in {}", uname);
+                        } else {
+                            System.out.println("Login failed!");
+                            lblErrorSignUp.setText("اطلاعات وارد شده صحیح نمیباشد!");
+                        }
+                    });
+                    jsonPostLogin.setOnFailed((failedEvent) -> {
+                        System.out.println("On Failed");
+                        LOGGER.log(Level.ERROR, "User successfully logged in {}", uname);
+                    });
+                    ExecutorService executorService = Executors.newFixedThreadPool(1);
+                    executorService.execute(jsonPostLogin);
+                    executorService.shutdown();
+                } catch (Exception e){
+                    e.printStackTrace();
+                    System.out.println(e.getMessage());
+                }
+            }
 
 
-                    try {
-                        File file = new File("record.wav");
+//                    try {
+//                        File file = new File("record.wav");
 //                        JsonPostVoiceFile jsonPostVoiceFile = new JsonPostVoiceFile(UtilAccessToken.accessToken, file);
 //                        jsonPostVoiceFile.setOnSucceeded((succeededEvent) -> {
 //                            if (jsonPostVoiceFile.responseCode == 200){
@@ -104,35 +127,16 @@ public class LoginController implements Initializable {
 //                        ExecutorService executorService = Executors.newFixedThreadPool(1);
 //                        executorService.execute(jsonPostVoiceFile);
 //                        executorService.shutdown();
-                    } catch (Exception e){
-                        e.printStackTrace();
-                    }
+//                    } catch (Exception e){
+//                        e.printStackTrace();
+//                    }
 
 
-                } else {
-                    System.out.println("Login failed!");
-                }
-            });
-            jsonPostLogin.setOnFailed((failedEvent) -> {
-                System.out.println("On Failed");
-                LOGGER.log(Level.ERROR, "User successfully logged in {}", uname);
-            });
-            ExecutorService executorService = Executors.newFixedThreadPool(1);
-            executorService.execute(jsonPostLogin);
-            executorService.shutdown();
+
         } catch (Exception e){
             e.printStackTrace();
             System.out.println(e.getMessage());
         }
-//        if (uname.equals(preference.getUsername()) && pword.equals(preference.getPassword())) {
-//            closeStage();
-//            loadMain();
-//            LOGGER.log(Level.INFO, "User successfully logged in {}", uname);
-//        }
-//        else {
-//            username.getStyleClass().add("wrong-credentials");
-//            password.getStyleClass().add("wrong-credentials");
-//        }
     }
 
     @FXML

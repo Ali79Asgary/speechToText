@@ -12,9 +12,13 @@ import javafx.scene.shape.Circle;
 import javafx.scene.text.Font;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
+import library.assistant.ui.main.JsonPostVoiceFile;
+import library.assistant.ui.main.MainRecorder;
 import library.assistant.ui.main.SoundRecorder;
 import library.assistant.ui.main.Stopwatch;
+import library.assistant.ui.main.toolbar.PrepareText;
 import library.assistant.util.LibraryAssistantUtil;
+import library.assistant.utils.UtilAccessToken;
 import org.apache.logging.log4j.Level;
 
 import java.io.File;
@@ -22,13 +26,18 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.net.URL;
 import java.util.ResourceBundle;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 public class StripController implements Initializable {
 
     File audioFile;
     boolean isRecordPressed = true;
     SoundRecorder soundRecorder;
+    MainRecorder mainRecorder;
     Stopwatch stopwatch;
+    int filesCount;
+    String text = "";
 
     @FXML
     public JFXButton btnRecordStrip;
@@ -75,29 +84,55 @@ public class StripController implements Initializable {
 
     @FXML
     void magnifyStrip(ActionEvent event) {
-        loadMain();
+        try {
+            loadMain();
+        } catch (Exception e){
+            e.printStackTrace();
+            System.out.println(e.getMessage());
+        }
     }
 
     @FXML
     void startRecordingStrip(ActionEvent event) {
+        try {
+            filesCount = new File("./AudioFiles").listFiles().length;
+        } catch (Exception e){
+            e.printStackTrace();
+        }
+        System.out.println(filesCount);
+        int fileNumber = filesCount - 1;
         if (isRecordPressed){
             btnRecordStrip.setText("پایان ظبط");
             System.out.println("شروع ظبط");
-
             stopwatch.play();
-            soundRecorder = new SoundRecorder();
-            Thread thread = new Thread(soundRecorder);
+            mainRecorder = new MainRecorder();
+            Thread thread = new Thread(mainRecorder);
             thread.start();
-
             isRecordPressed = false;
         } else {
             btnRecordStrip.setText("شروع ظبط");
             System.out.println("پایان ظبط");
 
+            mainRecorder.finish();
+            mainRecorder.cancel();
+            audioFile = new File("./AudioFiles/RecordAudio"+fileNumber+".wav");
             stopwatch.reset(lblTimerStrip);
-            soundRecorder.finish();
-            soundRecorder.cancel();
 
+            JsonPostVoiceFile jsonPostVoiceFile = new JsonPostVoiceFile(UtilAccessToken.accessToken, audioFile);
+            jsonPostVoiceFile.setOnSucceeded((succeededEvent) ->{
+                if (jsonPostVoiceFile.responseCode == 200){
+                    if (jsonPostVoiceFile.resultStatus == 200){
+                        text = text.concat(" ").concat(jsonPostVoiceFile.text);
+                        char[] textCharArray = PrepareText.divideText(text);
+                        for (int i = 0 ; i < text.length() ; i++){
+                            PrepareText.persianTextPressKey(textCharArray[i]);
+                        }
+                    }
+                }
+            });
+            ExecutorService executorService = Executors.newFixedThreadPool(1);
+            executorService.execute(jsonPostVoiceFile);
+            executorService.shutdown();
             isRecordPressed = true;
         }
     }

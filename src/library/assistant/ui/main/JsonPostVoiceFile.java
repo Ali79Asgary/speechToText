@@ -17,9 +17,9 @@ public class JsonPostVoiceFile extends Task {
 
     String accessToken = "";
     File wavFile;
-    int responseCode = 0;
-    int resultStatus = 0;
-    String text = "";
+    public int responseCode = 0;
+    public int resultStatus = 0;
+    public String text = "";
     JFXTextArea textArea;
 
     public JsonPostVoiceFile(String accessToken, File wavFile) {
@@ -31,28 +31,6 @@ public class JsonPostVoiceFile extends Task {
         this.accessToken = accessToken;
         this.wavFile = wavFile;
         this.textArea = textArea;
-    }
-
-    public static void main(String[] args) {
-        try {
-            File file = new File("D:\\IntelliJ\\Mr.Rasekh_JavaFX\\Library-Assistant\\AUD-20201026-WA0006.wav");
-            JsonPostVoiceFile jsonPostVoiceFile = new JsonPostVoiceFile(UtilAccessToken.accessToken, file);
-            jsonPostVoiceFile.setOnSucceeded((succeededEvent) -> {
-                if (jsonPostVoiceFile.responseCode == 200){
-                    System.out.println("The file sent successfully!");
-                } else {
-                    System.out.println("The file not sent!");
-                }
-            });
-            jsonPostVoiceFile.setOnFailed((failedEvent) -> {
-                System.out.println("OnFailed!");
-            });
-            ExecutorService executorService = Executors.newFixedThreadPool(1);
-            executorService.execute(jsonPostVoiceFile);
-            executorService.shutdown();
-        } catch (Exception e){
-            e.printStackTrace();
-        }
     }
 
     @Override
@@ -77,11 +55,14 @@ public class JsonPostVoiceFile extends Task {
 //            System.out.println(response.toString());
 //            System.out.println(result);
 //            System.out.println(responseCode);
-
             OkHttpClient client = new OkHttpClient().newBuilder().build();
             MediaType mediaType = MediaType.parse("text/plain");
-            RequestBody body = new MultipartBody.Builder().setType(MultipartBody.FORM).addFormDataPart("file", "D:\\IntelliJ\\Mr.Rasekh_JavaFX\\Library-Assistant\\AUD-20201026-WA0006.wav", RequestBody.create(MediaType.parse("application/octet-stream"), new File("D:\\IntelliJ\\Mr.Rasekh_JavaFX\\Library-Assistant\\AudioFiles\\AUD-20201026-WA0006.wav"))).build();
-            Request request = new Request.Builder().url("http://deepmine.ir:8890/api/speech2text/").method("POST", body).addHeader("Authorization", "Token "+accessToken).addHeader("X-CSRFToken", "dTESXmXRrcnvU5pM8QXOum3XXAgh2soUPZLpGyKk2we6p8M8C4gIhP0hThm3JraF").addHeader("Cookie", "csrftoken=dTESXmXRrcnvU5pM8QXOum3XXAgh2soUPZLpGyKk2we6p8M8C4gIhP0hThm3JraF").build();
+            RequestBody body = new MultipartBody.Builder().setType(MultipartBody.FORM).addFormDataPart("file", wavFile.getName(), RequestBody.create(MediaType.parse("application/octet-stream"), wavFile)).build();
+            Request request = new Request.Builder().
+                    url("http://deepmine.ir:8890/api/speech2text/").method("POST", body).
+                    addHeader("Authorization", "Token "+accessToken).
+                    addHeader("X-CSRFToken", "dTESXmXRrcnvU5pM8QXOum3XXAgh2soUPZLpGyKk2we6p8M8C4gIhP0hThm3JraF").
+                    addHeader("Cookie", "csrftoken=dTESXmXRrcnvU5pM8QXOum3XXAgh2soUPZLpGyKk2we6p8M8C4gIhP0hThm3JraF").build();
             Response response = client.newCall(request).execute();
             responseCode = response.code();
             String result = response.body().string();

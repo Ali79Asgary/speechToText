@@ -9,14 +9,15 @@ public class PrepareText {
 
     String text = "";
 
+    public PrepareText() { }
+
     public PrepareText(String text) { this.text = text; }
 
     public static void main(String[] args) {
         char[] textChars = divideText("سلام آقا علی");
         for (int i = 0 ; i < textChars.length ; i++){
-            pressKeyboard(textChars[i], "fa");
+            persianTextPressKey(textChars[i]);
         }
-        detectKeyboardLanguage();
     }
 
     public static String detectKeyboardLanguage(){
