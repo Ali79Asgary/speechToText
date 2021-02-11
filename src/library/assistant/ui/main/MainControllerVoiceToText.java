@@ -41,20 +41,17 @@ public class MainControllerVoiceToText implements Initializable {
     public Group decibelSoundMeterGroup;
     public AnchorPane decibelSoundMeterParent;
     public AnchorPane decibelSoundMeterShow;
-    LevelMeter meter;
     Thread recordThread;
     //new recorder fields
     private static final long serialVersionUID = 1L;
     byte[] audioBytes = null;
     float[] audioData = null;
     final int BUFFER_SIZE = 16384;
-    final FormatControlConf formatControlConf = new FormatControlConf();
 //    final Recorder recorder = new Recorder(meter);
 
     //last recorder fields
     File audioFile;
     boolean isRecordPressed = true;
-    SoundRecorder soundRecorder;
     MainRecorder mainRecorder;
     Stopwatch stopwatch;
     boolean isStripOpen = true;
@@ -96,12 +93,11 @@ public class MainControllerVoiceToText implements Initializable {
     @Override
     public void initialize(URL location, ResourceBundle resources) {
         try {
+            decibelSoundMeterShow.setPrefWidth(1);
             btnRecord.setShape(new Circle(100));
             isRecordPressed = true;
             stopwatch = new Stopwatch(lblTimer);
             stopwatch.starter();
-            meter = new LevelMeter();
-            meter.setPreferredSize(new Dimension(9, 100));
 
             try {
                 Font fontIRANSans = Font.loadFont(new FileInputStream(new File("src\\resources\\IRANSans.TTF")), 20);
@@ -156,7 +152,6 @@ public class MainControllerVoiceToText implements Initializable {
     @FXML
     void startRecording(ActionEvent event) {
         try {
-            decibelSoundMeterShow.setPrefWidth(80);
             try {
                 filesCount = new File("./AudioFiles").listFiles().length;
             } catch (Exception e){
@@ -170,13 +165,13 @@ public class MainControllerVoiceToText implements Initializable {
 
                 stopwatch.play();
 
-
-                mainRecorder = new MainRecorder();
+                mainRecorder = new MainRecorder(false, decibelSoundMeterShow);
                 Thread thread = new Thread(mainRecorder);
                 thread.start();
 
                 isRecordPressed = false;
             } else {
+                decibelSoundMeterShow.setPrefWidth(1);
                 btnRecord.setText("شروع ظبط");
                 System.out.println("پایان ظبط");
                 mainRecorder.finish();

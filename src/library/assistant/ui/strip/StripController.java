@@ -14,12 +14,10 @@ import javafx.stage.Stage;
 import javafx.stage.StageStyle;
 import library.assistant.ui.main.JsonPostVoiceFile;
 import library.assistant.ui.main.MainRecorder;
-import library.assistant.ui.main.SoundRecorder;
 import library.assistant.ui.main.Stopwatch;
 import library.assistant.ui.main.toolbar.PrepareText;
 import library.assistant.util.LibraryAssistantUtil;
 import library.assistant.utils.UtilAccessToken;
-import org.apache.logging.log4j.Level;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -33,7 +31,6 @@ public class StripController implements Initializable {
 
     File audioFile;
     boolean isRecordPressed = true;
-    SoundRecorder soundRecorder;
     MainRecorder mainRecorder;
     Stopwatch stopwatch;
     int filesCount;
@@ -105,7 +102,7 @@ public class StripController implements Initializable {
             btnRecordStrip.setText("پایان ظبط");
             System.out.println("شروع ظبط");
             stopwatch.play();
-            mainRecorder = new MainRecorder();
+            mainRecorder = new MainRecorder(true);
             Thread thread = new Thread(mainRecorder);
             thread.start();
             isRecordPressed = false;

@@ -90,7 +90,7 @@ public class LoginController implements Initializable {
                             System.out.println("On Succeeded");
                             closeStage();
                             loadStrip(isStripOpen);
-                            loadMain();
+//                            loadMain();
                             LOGGER.log(Level.INFO, "User successfully logged in {}", uname);
                         } else {
                             System.out.println("Login failed!");

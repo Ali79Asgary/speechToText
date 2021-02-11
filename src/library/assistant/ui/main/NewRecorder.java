@@ -9,7 +9,6 @@ import java.util.Objects;
 
 public class NewRecorder implements Runnable {
 
-    LevelMeter meter;
     AnchorPane anchorPaneShow;
 
     static final long RECORD_TIME = 60000;
@@ -22,12 +21,10 @@ public class NewRecorder implements Runnable {
 
     TargetDataLine targetDataLine;
 
-    public NewRecorder(LevelMeter meter) {
-        this.meter = meter;
+    public NewRecorder() {
     }
 
-    public NewRecorder(LevelMeter meter, AnchorPane anchorPaneShow) {
-        this.meter = meter;
+    public NewRecorder(AnchorPane anchorPaneShow) {
         this.anchorPaneShow = anchorPaneShow;
     }
 
